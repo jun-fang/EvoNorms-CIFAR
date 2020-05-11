@@ -19,6 +19,11 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
+import numpy as np
+import pandas as pd
+from glob import glob
+from datetime import datetime
+
 from models import *
 
 # pytorch version: 1.5.0
@@ -50,8 +55,8 @@ parser.add_argument('--min_lr', default=1e-4, type=float,
                     help='minimum learning rate in CosineAnnealingLR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
-parser.add_argument('--wd', '--weight-decay', default=5e-4, type=float,
-                    metavar='W', help='weight decay (default: 5e-4)',
+parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
+                    metavar='W', help='weight decay (default: 1e-4)',
                     dest='weight_decay')
 parser.add_argument('-p', '--print-freq', default=100, type=int,
                     metavar='N', help='print frequency (default: 100)')
@@ -67,6 +72,8 @@ best_acc1 = 0
 def main():
     args = parser.parse_args()
     global best_acc1
+
+    total_start_time = time.time()
     
     # create model
     if args.arch.startswith('resnet'):
@@ -180,6 +187,20 @@ def main():
         log.write('\nEpoch %d/%d, lr: %.6f, time: %.3f min; valid Acc@1: %.3f, best Acc@1: %.3f' 
             % (epoch, args.epochs, epoch_lr, epoch_time / 60, acc1, best_acc1))
         print('\n')
+
+    table_path = 'checkpoints/all_results.csv'
+    new_df = pd.DataFrame({
+        'model': [args.arch], 
+        'norm_act_layer': [args.norm_act_layer],
+        'batch_size': [args.batch_size],
+        'top1_acc': [float(best_acc1)],
+        'time': [('%.2f hours' % ((time.time() - total_start_time) / 3600), 
+                    datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))]})
+    new_df = new_df[['model', 'norm_act_layer', 'batch_size', 'top1_acc', 'time']]
+    if os.path.exists(table_path):
+      old_df = pd.read_csv(table_path)
+      new_df = old_df.append(new_df)
+    new_df.to_csv(table_path, index = False)
 
 
 def train(train_loader, model, criterion, optimizer, epoch, args):
