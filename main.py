@@ -19,8 +19,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
 from models import *
-from utils import *
 
+# pytorch version: 1.5.0
 # referece: https://github.com/pytorch/examples/blob/master/imagenet/main.py
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
