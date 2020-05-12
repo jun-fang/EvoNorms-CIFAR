@@ -38,9 +38,9 @@ parser.add_argument('-nal', '--norm_act_layer', default='BN-ReLU',
 
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=300, type=int, metavar='N',
+parser.add_argument('--epochs', default=200, type=int, metavar='N',
                     help='number of total epochs to run')
-parser.add_argument('--warmup_epochs', default=10, type=int, metavar='N',
+parser.add_argument('--warmup_epochs', default=5, type=int, metavar='N',
                     help='warmup epochs')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -51,7 +51,7 @@ parser.add_argument('-b', '--batch-size', default=256, type=int,
                          'using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
-parser.add_argument('--min_lr', default=1e-4, type=float, 
+parser.add_argument('--min_lr', default=1e-6, type=float, 
                     help='minimum learning rate in CosineAnnealingLR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
@@ -193,10 +193,11 @@ def main():
         'model': [args.arch], 
         'norm_act_layer': [args.norm_act_layer],
         'batch_size': [args.batch_size],
+        'epochs': [args.epochs],
         'top1_acc': [float(best_acc1)],
         'time': [('%.2f hours' % ((time.time() - total_start_time) / 3600), 
                     datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))]})
-    new_df = new_df[['model', 'norm_act_layer', 'batch_size', 'top1_acc', 'time']]
+    new_df = new_df[['model', 'norm_act_layer', 'batch_size', 'epochs', 'top1_acc', 'time']]
     if os.path.exists(table_path):
       old_df = pd.read_csv(table_path)
       new_df = old_df.append(new_df)
@@ -383,7 +384,8 @@ def cosine_learning_rate(optimizer, epoch, args):
     """Cosine learning rate decay with several epochs warmups"""
     init_lr, min_lr, warmup_epochs = args.lr, args.min_lr, args.warmup_epochs
     if epoch < warmup_epochs:
-        lr = init_lr * (epoch + 1.0) / warmup_epochs
+        # lr = init_lr * (epoch + 1.0) / warmup_epochs
+        lr = min(init_lr, 0.005 * 2 ** epoch)
     else:
         temp = (math.cos(math.pi * (epoch - warmup_epochs) / (args.epochs - warmup_epochs)) + 1) / 2
         lr = min_lr + (init_lr - min_lr) * temp

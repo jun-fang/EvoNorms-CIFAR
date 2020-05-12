@@ -41,7 +41,7 @@ class PreActBottleneck(nn.Module):
     '''Pre-activation version of the original Bottleneck module.'''
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1, norm_act_layer='BN-ReLU'):
         super(PreActBottleneck, self).__init__()
         self.norm_act_1 = NormAct2d(in_planes, norm_act_layer, nonlinearity=True)
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
