@@ -38,7 +38,7 @@ parser.add_argument('-nal', '--norm_act_layer', default='BN-ReLU',
 
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=200, type=int, metavar='N',
+parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--warmup_epochs', default=5, type=int, metavar='N',
                     help='warmup epochs')
@@ -49,9 +49,9 @@ parser.add_argument('-b', '--batch-size', default=256, type=int,
                     help='mini-batch size (default: 256), this is the total '
                          'batch size of all GPUs on the current node when '
                          'using Data Parallel or Distributed Data Parallel')
-parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
+parser.add_argument('--lr', '--learning-rate', default=5e-2, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
-parser.add_argument('--min_lr', default=1e-6, type=float, 
+parser.add_argument('--min_lr', default=5e-6, type=float, 
                     help='minimum learning rate in CosineAnnealingLR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
